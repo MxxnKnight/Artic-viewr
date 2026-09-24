@@ -34,7 +34,11 @@
     G: { label: 'G: toolbar chain (clip>flexcol>fade)', color: '#ec4899',
          html: '<div class="flexcol" style="overflow-x:clip"><div class="flexcol"><div class="fade"><div class="bar" style="background:#ec4899">G: toolbar chain</div><div class="spacer">G spacer</div></div></div></div>' },
     H: { label: 'H: flex column, NO overflow-x (proposed fix)', color: '#84cc16',
-         html: '<div class="flexcol"><div class="bar" style="background:#84cc16">H: flexcol no overflow-x</div><div class="spacer">H spacer</div></div>' }
+         html: '<div class="flexcol"><div class="bar" style="background:#84cc16">H: flexcol no overflow-x</div><div class="spacer">H spacer</div></div>' },
+    I: { label: 'I: flexcol + overflow-x:clip (app root combo)', color: '#f472b6',
+         html: '<div class="flexcol" style="overflow-x:clip"><div class="bar" style="background:#f472b6">I: flexcol+clip</div><div class="spacer">I spacer</div></div>' },
+    J: { label: 'J: flexcol + clip + min-height:100dvh (exact app root)', color: '#fb923c',
+         html: '<div class="flexcol" style="overflow-x:clip;min-height:100dvh"><div class="bar" style="background:#fb923c">J: exact app root</div><div class="spacer">J spacer</div></div>' }
   };
   var root = document.getElementById('root');
   if (CASE === 'ALL') {
