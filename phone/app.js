@@ -360,13 +360,12 @@ function onboardingHTML() {
   ).join('');
 
   return '' +
-  '<div class="relative overflow-hidden">' +
+  '<div class="h-full w-full bg-[#0A0F18] relative overflow-hidden flex flex-col overflow-x-hidden">' +
     '<div class="absolute -top-[120px] -left-[80px] w-[340px] h-[340px] bg-[#66CCFF]/25 rounded-full blur-[80px] pointer-events-none"></div>' +
     '<div class="absolute top-[180px] -right-[100px] w-[300px] h-[300px] bg-[#66CCFF]/15 rounded-full blur-[70px] pointer-events-none"></div>' +
     '<div class="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-[#66CCFF]/10 to-transparent pointer-events-none"></div>' +
 
-    '<div class="relative z-10 max-w-4xl mx-auto px-6 py-8 lg:py-14">' +
-    '<div class="flex justify-between items-center">' +
+    '<div class="relative z-10 px-6 pt-[calc(14px+var(--safe-area-inset-top,0px))] lg:pt-14 flex justify-between items-center shrink-0">' +
       '<div class="flex items-center gap-2">' +
         '<div class="w-8 h-8 rounded-[10px] bg-white text-black flex items-center justify-center">' + icon('Snowflake', 18) + '</div>' +
         '<span class="font-semibold tracking-[-0.02em] text-[15px]">ARTIC SHIFT</span>' +
@@ -374,30 +373,15 @@ function onboardingHTML() {
       '<button data-action="skip" class="min-h-[44px] min-w-[44px] px-3 flex items-center justify-center text-[12px] tracking-widest text-white/50 hover:text-white/80 rounded-full">SKIP</button>' +
     '</div>' +
 
-    '<div class="mt-10 lg:mt-14 grid gap-10 lg:grid-cols-2 items-center">' +
-      '<div>' +
+    '<div class="relative z-10 flex-1 px-6 flex flex-col pt-6 overflow-auto scrollbar-none">' +
+      '<div class="flex-1 flex flex-col">' +
         '<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#66CCFF]/10 border border-[#66CCFF]/20 text-[11px] tracking-widest text-[#66CCFF] mb-6 self-start">' +
           '<span class="w-1.5 h-1.5 rounded-full bg-[#66CCFF] animate-pulse"></span>LJSON • JSONL • LJSONE' +
         '</div>' +
-        '<h1 class="text-[32px] sm:text-[36px] lg:text-[44px] font-[750] leading-[0.95] tracking-[-0.04em] mb-4">Shift through<br><span class="text-[#66CCFF]">Arctic data</span><br>like ice.</h1>' +
-        '<p class="text-[14px] leading-[22px] text-white/55 max-w-[380px]">' + esc(SLIDES[state.slide]) + '</p>' +
+        '<h1 class="text-[32px] sm:text-[36px] font-[750] leading-[0.95] tracking-[-0.04em] mb-4 max-w-[320px]">Shift through<br><span class="text-[#66CCFF]">Arctic data</span><br>like ice.</h1>' +
+        '<p class="text-[14px] leading-[22px] text-white/55 max-w-[300px]">' + esc(SLIDES[state.slide]) + '</p>' +
 
-        '<div class="mt-8">' +
-          '<div class="flex items-center justify-between mb-5">' +
-            '<div class="flex gap-1.5">' + dots + '</div>' +
-            '<div class="flex gap-2">' +
-              (state.slide > 0
-                ? '<button data-action="slide" data-dir="-1" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center active:scale-95">' + icon('ChevronLeft', 18) + '</button>'
-                : '') +
-              '<button data-action="slide" data-dir="1" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white text-black flex items-center justify-center active:scale-95">' + icon('ChevronRight', 18) + '</button>' +
-            '</div>' +
-          '</div>' +
-          '<button data-action="begin" class="w-full sm:w-auto sm:px-10 h-[56px] min-h-[56px] rounded-[18px] bg-[#66CCFF] text-black font-semibold text-[15px] tracking-[-0.01em] flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(102,204,255,0.35)] hover:bg-[#7DD3FF] active:scale-[0.98] transition-all">Begin Shift ' + icon('ArrowUpRight', 18) + '</button>' +
-          '<div class="mt-3 text-[11px] text-white/30">No data leaves your device • offline-first • tap to browse on mobile</div>' +
-        '</div>' +
-      '</div>' +
-
-      '<div class="relative">' +
+        '<div class="mt-6 sm:mt-8 relative">' +
           '<div class="rounded-[20px] bg-[#111A26]/90 border border-white/[0.06] backdrop-blur p-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">' +
             '<div class="flex items-center gap-2 mb-3">' +
               '<div class="w-2 h-2 rounded-full bg-[#FF5F57]"></div>' +
@@ -422,6 +406,20 @@ function onboardingHTML() {
           '</div>' +
           '<div class="absolute -right-1 -top-3 rotate-3 bg-white text-black text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">' + icon('Zap', 12) + ' ZERO-LAG</div>' +
         '</div>' +
+      '</div>' +
+
+      '<div class="pb-[calc(20px+env(safe-area-inset-bottom,0px))] pt-6 shrink-0">' +
+        '<div class="flex items-center justify-between mb-5">' +
+          '<div class="flex gap-1.5">' + dots + '</div>' +
+          '<div class="flex gap-2">' +
+            (state.slide > 0
+              ? '<button data-action="slide" data-dir="-1" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center active:scale-95">' + icon('ChevronLeft', 18) + '</button>'
+              : '') +
+            '<button data-action="slide" data-dir="1" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white text-black flex items-center justify-center active:scale-95">' + icon('ChevronRight', 18) + '</button>' +
+          '</div>' +
+        '</div>' +
+        '<button data-action="begin" class="w-full h-[56px] min-h-[56px] rounded-[18px] bg-[#66CCFF] text-black font-semibold text-[15px] tracking-[-0.01em] flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(102,204,255,0.35)] hover:bg-[#7DD3FF] active:scale-[0.98] transition-all">Begin Shift ' + icon('ArrowUpRight', 18) + '</button>' +
+        '<div class="mt-3 text-center text-[11px] text-white/30 px-2">No data leaves your device • offline-first • tap to browse on mobile</div>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -474,17 +472,19 @@ function homeHTML() {
     '</div>';
 
   return '' +
-  '<div class="py-8 lg:py-12">' +
-    '<div class="flex items-center justify-between gap-4">' +
-      '<div>' +
-        '<div class="text-[12px] tracking-widest text-white/40">WELCOME BACK</div>' +
-        '<h2 class="text-[28px] lg:text-[36px] font-semibold tracking-[-0.02em]">Arctic Lab</h2>' +
-        '<p class="text-[13px] text-white/45 mt-2 max-w-[520px] leading-[20px]">Drop a JSONL file and inspect it line by line — search, filter, and view every record as a tree, table, or raw JSON.</p>' +
+  '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
+    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="hidden" tabindex="-1">' +
+    '<div class="px-5 sm:px-6 pt-[calc(16px+var(--safe-area-inset-top,0px))] lg:pt-14 pb-4 shrink-0">' +
+      '<div class="flex items-center justify-between">' +
+        '<div>' +
+          '<div class="text-[12px] tracking-widest text-white/40">WELCOME BACK</div>' +
+          '<h2 class="text-[22px] font-semibold tracking-[-0.02em]">Arctic Lab</h2>' +
+        '</div>' +
+        '<div class="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-[#1A2636] border border-white/10 flex items-center justify-center"><span class="text-[12px]">A</span></div>' +
       '</div>' +
-      '<div class="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-[#1A2636] border border-white/10 hidden sm:flex items-center justify-center shrink-0"><span class="text-[12px]">A</span></div>' +
     '</div>' +
 
-    '<div class="mt-8 space-y-5">' +
+    '<div class="flex-1 overflow-auto px-4 sm:px-5 pb-[100px] space-y-5 scrollbar-none">' +
       '<div>' +
       '<div id="dropzone" role="button" tabindex="0" data-action="upload" class="group rounded-[20px] border-2 border-dashed p-5 transition-all cursor-pointer min-h-[110px] flex flex-col justify-center active:scale-[0.99] ' + dropCls + '">' +
         '<div class="flex items-center gap-4">' +
@@ -509,23 +509,20 @@ function homeHTML() {
 
       errBanner +
 
-      '<div class="grid gap-5 lg:grid-cols-5">' +
-      '<div class="lg:col-span-3">' + currentFile + '</div>' +
-      '<div class="lg:col-span-2">' +
+      currentFile +
+
       '<div class="grid grid-cols-3 gap-3">' +
         stat('Database', 'LINES', doc ? doc.lines.length.toLocaleString() : '&mdash;', doc ? 'parsed' : 'no file', 'text-white/30') +
         stat('TriangleAlert', 'ERRORS', doc ? String(errCount) : '&mdash;', errCount ? 'needs review' : (doc ? 'all clean' : 'no file'), errCount ? 'text-[#FF9A6C]' : 'text-white/30') +
         stat('HardDrive', 'SIZE', doc ? esc(formatBytes(doc.sizeBytes)) : '&mdash;', doc ? 'on-device only' : 'no file', 'text-white/30') +
       '</div>' +
 
-      '<div class="mt-5 rounded-[16px] bg-gradient-to-br from-[#66CCFF]/15 to-[#66CCFF]/5 border border-[#66CCFF]/20 p-4 flex gap-3">' +
+      '<div class="rounded-[16px] bg-gradient-to-br from-[#66CCFF]/15 to-[#66CCFF]/5 border border-[#66CCFF]/20 p-4 flex gap-3">' +
         '<div class="w-9 h-9 min-w-[36px] rounded-full bg-[#66CCFF] text-black flex items-center justify-center shrink-0">' + icon('Sparkles', 16) + '</div>' +
         '<div>' +
           '<div class="text-[13px] font-medium">Pro tip</div>' +
           '<div class="text-[12px] text-white/60 leading-[18px] mt-1">Malformed lines are kept and flagged &mdash; use the Errors filter in Lines to jump straight to them.</div>' +
         '</div>' +
-      '</div>' +
-      '</div>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -546,11 +543,14 @@ function viewerHTML() {
   // ---- empty state: no file loaded yet ---------------------------------
   if (!doc) {
     return '' +
-    '<div class="py-20 lg:py-28 flex flex-col items-center justify-center px-8 text-center max-w-md mx-auto">' +
+    '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
+      '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="hidden" tabindex="-1">' +
+      '<div class="flex-1 flex flex-col items-center justify-center px-8 text-center">' +
         '<div class="w-16 h-16 rounded-[20px] bg-[#66CCFF]/10 border border-[#66CCFF]/20 flex items-center justify-center text-[#66CCFF] mb-5">' + icon('CloudUpload', 28) + '</div>' +
         '<div class="text-[16px] font-semibold">No file loaded</div>' +
-        '<div class="text-[13px] text-white/45 mt-2 leading-[20px]">Upload a .json, .jsonl, .ljson or .ljsone file to start inspecting lines.</div>' +
+        '<div class="text-[13px] text-white/45 mt-2 leading-[20px] max-w-[240px]">Upload a .json, .jsonl, .ljson or .ljsone file to start inspecting lines.</div>' +
         '<button data-action="upload" class="mt-6 h-[52px] min-h-[52px] px-8 rounded-[16px] bg-[#66CCFF] text-black font-semibold text-[14px] flex items-center gap-2 active:scale-[0.98]">Choose file ' + icon('ArrowUpRight', 16) + '</button>' +
+      '</div>' +
     '</div>';
   }
 
@@ -602,7 +602,7 @@ function viewerHTML() {
       } else if (expanded) {
         preview = '<div class="rounded-[10px] bg-[#0E1722] border border-white/5 p-2.5 mt-1 overflow-hidden max-w-full">' + highlightJSON(line.raw) + '</div>';
       } else {
-        preview = '<span class="font-mono text-[11px] text-white/40 block truncate max-w-[220px] sm:max-w-[320px] lg:max-w-[480px]">' + esc(line.raw.slice(0, 88)) + '\u2026</span>';
+        preview = '<span class="font-mono text-[11px] text-white/40 block truncate max-w-[220px] sm:max-w-[260px]">' + esc(line.raw.slice(0, 88)) + '\u2026</span>';
       }
       return '' +
       '<div class="group ' + (isErr ? 'bg-[#FF9A6C]/[0.06]' : 'hover:bg-white/[0.02]') + '">' +
@@ -611,7 +611,7 @@ function viewerHTML() {
           '<div class="flex-1 min-w-0">' +
             '<div class="flex items-center gap-2 flex-wrap">' +
               typeBadge(line) +
-              '<span class="text-[12px] font-mono text-white/80 truncate max-w-[110px] sm:max-w-[160px] lg:max-w-[220px]">' + esc(line.id) + '</span>' +
+              '<span class="text-[12px] font-mono text-white/80 truncate max-w-[110px] sm:max-w-[140px]">' + esc(line.id) + '</span>' +
               (line.timestamp
                 ? '<span class="ml-auto text-[10px] text-white/30 font-mono shrink-0">' + esc(line.timestamp.slice(11, 19) || line.timestamp) + '</span>'
                 : '') +
@@ -636,8 +636,9 @@ function viewerHTML() {
   }
 
   return '' +
-  '<div class="py-6 lg:py-10">' +
-    '<div class="sticky top-[72px] z-20 rounded-[16px] border border-white/[0.06] bg-[#0A0F18]/95 backdrop-blur px-4 py-3">' +
+  '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
+    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="hidden" tabindex="-1">' +
+    '<div class="px-4 sm:px-5 pt-[calc(16px+var(--safe-area-inset-top,0px))] lg:pt-14 pb-3 border-b border-white/[0.06] bg-[#0A0F18]/90 backdrop-blur shrink-0">' +
       '<div class="flex items-center justify-between gap-3">' +
         '<div class="flex items-center gap-3 min-w-0">' +
           '<div class="w-10 h-10 min-w-[40px] rounded-[10px] bg-[#121D2B] border border-white/10 flex items-center justify-center shrink-0">' + icon('Braces', 16, 'text-[#66CCFF]') + '</div>' +
@@ -663,9 +664,9 @@ function viewerHTML() {
       '<div class="mt-3 flex gap-2 overflow-auto scrollbar-none pb-1">' + chips + '</div>' +
     '</div>' +
 
-    '<div class="mt-2">' + listHTML + '</div>' +
+    '<div class="flex-1 overflow-auto scrollbar-none overflow-x-hidden pb-[100px]">' + listHTML + '</div>' +
 
-    '<div class="mt-4 h-11 min-h-[44px] rounded-[14px] border border-white/[0.06] bg-[#0F1926]/95 backdrop-blur flex items-center justify-between px-4 text-[11px] text-white/40">' +
+    '<div class="mx-4 mb-[calc(96px+env(safe-area-inset-bottom,0px))] h-11 min-h-[44px] rounded-[14px] border border-white/[0.06] bg-[#0F1926]/95 backdrop-blur flex items-center justify-between px-4 text-[11px] text-white/40 shrink-0">' +
       '<span class="flex items-center gap-1.5 truncate"><span class="w-2 h-2 rounded-full bg-[#66CCFF] animate-pulse shrink-0"></span> ' + lines.length.toLocaleString() + ' visible</span>' +
       '<span class="font-mono">' + doc.lines.length.toLocaleString() + ' total</span>' +
     '</div>' +
@@ -705,14 +706,14 @@ function summaryCardsHTML(parsed) {
         '<div class="text-[10px] tracking-widest text-white/30">TOP-LEVEL KEYS</div>' +
         '<div class="text-[13px] font-mono mt-1">' + Object.keys(parsed).length + ' keys</div>' +
       '</div>';
-  return '<div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">' + cards + '</div>';
+  return '<div class="mt-5 grid grid-cols-2 gap-3">' + cards + '</div>';
 }
 
 function detailHTML() {
   const line = state.line;
   if (!line) {
     return '' +
-    '<div class="py-20 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">' +
+    '<div class="h-full bg-[#0A0F18] flex flex-col items-center justify-center p-8 text-center overflow-x-hidden">' +
       '<div class="w-14 h-14 rounded-[18px] bg-white/5 flex items-center justify-center mb-4">' + icon('Braces', 24, 'text-white/20') + '</div>' +
       '<div class="text-[14px] font-medium">No line selected</div>' +
       '<div class="text-[12px] text-white/40 mt-1 max-w-[220px]">Tap Inspect on any line in the viewer to open detail view</div>' +
@@ -751,8 +752,8 @@ function detailHTML() {
     (state.detailTab === v ? 'bg-white text-black font-medium' : 'text-white/50') + '">' + icon(ic, 14) + ' ' + label + '</button>';
 
   return '' +
-  '<div class="py-6 lg:py-10">' +
-    '<div class="pb-4 border-b border-white/[0.06] flex items-center gap-3">' +
+  '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
+    '<div class="px-4 sm:px-5 pt-[calc(16px+var(--safe-area-inset-top,0px))] lg:pt-14 pb-4 border-b border-white/[0.06] flex items-center gap-3 shrink-0">' +
       '<button data-action="back" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center shrink-0 active:scale-95">' + icon('ChevronLeft', 18) + '</button>' +
       '<div class="flex-1 min-w-0">' +
         '<div class="text-[13px] font-mono font-medium truncate">' + esc(line.id) + '</div>' +
@@ -761,7 +762,7 @@ function detailHTML() {
       '<button data-action="copy-detail" class="h-11 min-h-[44px] px-4 rounded-full bg-[#66CCFF] text-black text-[12px] font-medium flex items-center gap-1.5 shrink-0 active:scale-95">' + copyIcon + ' ' + copyLabel + '</button>' +
     '</div>' +
 
-    '<div class="py-3 flex items-center justify-between gap-2">' +
+    '<div class="px-4 sm:px-5 py-3 flex items-center justify-between shrink-0 gap-2">' +
       '<div class="flex bg-[#121D2B] border border-white/10 rounded-full p-1 gap-1 overflow-x-auto scrollbar-none">' +
         tabBtn('tree', 'GitBranch', 'Tree') +
         tabBtn('table', 'Table', 'Table') +
@@ -770,7 +771,7 @@ function detailHTML() {
       '<div class="text-[11px] text-white/30 font-mono shrink-0">' + line.raw.length + ' chars</div>' +
     '</div>' +
 
-    '<div>' +
+    '<div class="flex-1 overflow-auto px-4 sm:px-5 pb-[100px] scrollbar-none">' +
       body +
       (line.error ? '' : summaryCardsHTML(parsed)) +
     '</div>' +
@@ -828,11 +829,13 @@ function statsHTML() {
 
   if (!doc) {
     return '' +
-    '<div class="py-20 lg:py-28 flex flex-col items-center justify-center px-8 text-center max-w-md mx-auto">' +
+    '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
+      '<div class="flex-1 flex flex-col items-center justify-center px-8 text-center">' +
         '<div class="w-16 h-16 rounded-[20px] bg-[#66CCFF]/10 border border-[#66CCFF]/20 flex items-center justify-center text-[#66CCFF] mb-5">' + icon('ChartColumn', 28) + '</div>' +
         '<div class="text-[16px] font-semibold">No stats yet</div>' +
-        '<div class="text-[13px] text-white/45 mt-2 leading-[20px]">Upload a file on Home and its type distribution, keys and integrity will appear here.</div>' +
+        '<div class="text-[13px] text-white/45 mt-2 leading-[20px] max-w-[240px]">Upload a file on Home and its type distribution, keys and integrity will appear here.</div>' +
         '<button data-action="nav" data-id="home" class="mt-6 h-[52px] min-h-[52px] px-8 rounded-[16px] bg-[#66CCFF] text-black font-semibold text-[14px] flex items-center gap-2 active:scale-[0.98]">Go to Home ' + icon('ArrowUpRight', 16) + '</button>' +
+      '</div>' +
     '</div>';
   }
 
@@ -855,38 +858,35 @@ function statsHTML() {
   ).join('') || '<span class="text-[12px] text-white/40">No keys found.</span>';
 
   return '' +
-  '<div class="py-8 lg:py-12">' +
-    '<h2 class="text-[28px] lg:text-[36px] font-semibold tracking-[-0.02em]">File Stats</h2>' +
-    '<div class="text-[12px] text-white/40 mt-2 truncate">' + esc(doc.name) + ' &bull; analyzed on-device</div>' +
+  '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
+    '<div class="px-5 sm:px-6 pt-[calc(16px+var(--safe-area-inset-top,0px))] lg:pt-14 pb-4 shrink-0">' +
+      '<h2 class="text-[22px] font-semibold tracking-[-0.02em]">File Stats</h2>' +
+      '<div class="text-[12px] text-white/40 mt-1 truncate">' + esc(doc.name) + ' &bull; analyzed on-device</div>' +
+    '</div>' +
 
-    '<div class="mt-8 space-y-4">' +
-      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">' +
+    '<div class="flex-1 overflow-auto px-4 sm:px-5 pb-[100px] space-y-4 scrollbar-none">' +
+      '<div class="grid grid-cols-2 gap-3">' +
         '<div class="rounded-[18px] bg-gradient-to-br from-[#66CCFF] to-[#4AA8D8] p-4 text-black">' +
           '<div class="text-[11px] tracking-widest opacity-70 flex items-center gap-1">' + icon('FileText', 12) + ' LINES</div>' +
           '<div class="text-[28px] font-[750] leading-none mt-2 tracking-[-0.03em]">' + s.total.toLocaleString() + '</div>' +
           '<div class="text-[11px] mt-2 opacity-70">' + esc(formatBytes(doc.sizeBytes)) + ' file</div>' +
           '<div class="mt-3 h-1.5 rounded-full bg-black/15 overflow-hidden"><div class="h-full bg-black/40 rounded-full" style="width:' + s.integrity + '%"></div></div>' +
         '</div>' +
-        '<div class="rounded-[18px] bg-[#111B28] border border-white/[0.06] p-4">' +
-          '<div class="text-[11px] text-white/40">AVG / LINE</div>' +
-          '<div class="text-[18px] font-semibold mt-1">' + esc(formatBytes(s.total ? Math.round(doc.sizeBytes / s.total) : 0)) + '</div>' +
-          '<div class="text-[10px] text-white/30 mt-1">parsed in ' + doc.parsedMs + ' ms</div>' +
-        '</div>' +
-        '<div class="rounded-[18px] bg-[#111B28] border border-white/[0.06] p-4 flex items-center justify-between">' +
-          '<div>' +
-            '<div class="text-[11px] text-white/40">ERROR LINES</div>' +
-            '<div class="text-[18px] font-semibold mt-1 flex items-center gap-2">' + s.errors.toLocaleString() + ' <span class="w-2 h-2 rounded-full ' + (s.errors ? 'bg-[#FF9A6C]' : 'bg-[#C9F99A]') + '"></span></div>' +
+        '<div class="space-y-3">' +
+          '<div class="rounded-[18px] bg-[#111B28] border border-white/[0.06] p-4">' +
+            '<div class="text-[11px] text-white/40">AVG / LINE</div>' +
+            '<div class="text-[18px] font-semibold mt-1">' + esc(formatBytes(s.total ? Math.round(doc.sizeBytes / s.total) : 0)) + '</div>' +
+            '<div class="text-[10px] text-white/30 mt-1">parsed in ' + doc.parsedMs + ' ms</div>' +
           '</div>' +
-          icon('TriangleAlert', 20, s.errors ? 'text-[#FF9A6C]' : 'text-white/20') +
-        '</div>' +
-        '<div class="rounded-[18px] bg-[#111B28] border border-white/[0.06] p-4">' +
-          '<div class="text-[11px] text-white/40">INTEGRITY</div>' +
-          '<div class="text-[18px] font-semibold mt-1 text-[#C9F99A]">' + s.integrity + '%</div>' +
-          '<div class="text-[10px] text-white/30 mt-1">lines parsed clean</div>' +
+          '<div class="rounded-[18px] bg-[#111B28] border border-white/[0.06] p-4 flex items-center justify-between">' +
+            '<div>' +
+              '<div class="text-[11px] text-white/40">ERROR LINES</div>' +
+              '<div class="text-[18px] font-semibold mt-1 flex items-center gap-2">' + s.errors.toLocaleString() + ' <span class="w-2 h-2 rounded-full ' + (s.errors ? 'bg-[#FF9A6C]' : 'bg-[#C9F99A]') + '"></span></div>' +
+            '</div>' +
+            icon('TriangleAlert', 20, s.errors ? 'text-[#FF9A6C]' : 'text-white/20') +
+          '</div>' +
         '</div>' +
       '</div>' +
-
-      '<div class="grid gap-4 lg:grid-cols-2">' +
 
       '<div class="rounded-[18px] bg-[#111B28] border border-white/[0.06] p-4">' +
         '<div class="flex items-center justify-between mb-4">' +
@@ -904,7 +904,6 @@ function statsHTML() {
           '<div class="rounded-[10px] bg-white/[0.03] border border-white/5 p-2.5"><div class="text-white/30">Integrity</div><div class="font-mono font-medium mt-1 text-[#C9F99A]">' + s.integrity + '%</div></div>' +
           '<div class="rounded-[10px] bg-white/[0.03] border border-white/5 p-2.5"><div class="text-white/30">Unique types</div><div class="font-mono font-medium mt-1">' + Object.keys(s.types).length + '</div></div>' +
         '</div>' +
-      '</div>' +
       '</div>' +
 
       '<div class="rounded-[18px] bg-[#0E1722] border border-[#66CCFF]/20 p-4 flex gap-3">' +
@@ -938,34 +937,31 @@ function bottomNavHTML() {
     '</button>';
   }).join('');
 
-  // Fixed to the viewport on mobile only — desktop uses the top navbar.
+  // Fixed to the viewport on mobile, pinned inside the phone frame on desktop,
+  // so it never scrolls away with the content.
   return '' +
-  '<div class="fixed lg:hidden bottom-0 left-0 right-0 z-20 px-3 pb-[calc(10px+env(safe-area-inset-bottom,0px))] pt-2 bg-gradient-to-t from-[#0A0F18] via-[#0A0F18]/90 to-transparent">' +
+  '<div class="fixed lg:absolute bottom-0 left-0 right-0 z-20 px-3 pb-[calc(10px+env(safe-area-inset-bottom,0px))] pt-2 bg-gradient-to-t from-[#0A0F18] via-[#0A0F18]/90 to-transparent">' +
     '<div class="mx-auto max-w-[390px] h-[68px] min-h-[68px] rounded-[24px] bg-[#111B28]/95 backdrop-blur-[20px] border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex items-center justify-around px-2">' +
       items +
     '</div>' +
   '</div>';
 }
 
-/* Sticky top navbar for the website layout (desktop links; mobile keeps the
-   bottom nav island for navigation). */
-function topNavHTML() {
-  const pills = NAV_ITEMS.map((item) => {
+const DESKTOP_NAV = [
+  { id: 'onboarding', label: 'Onboarding' },
+  { id: 'home',       label: 'Home' },
+  { id: 'viewer',     label: 'Viewer' },
+  { id: 'detail',     label: 'Detail' },
+  { id: 'stats',      label: 'Stats' },
+];
+
+function desktopNavHTML() {
+  const pills = DESKTOP_NAV.map((item) => {
     const active = state.screen === item.id;
-    return '<button data-action="nav" data-id="' + item.id + '" class="h-9 min-h-[36px] px-4 rounded-full text-[12px] font-medium transition-colors ' +
+    return '<button data-action="nav" data-id="' + item.id + '" class="h-9 min-h-[36px] px-4 rounded-full text-[12px] font-medium capitalize transition-colors ' +
       (active ? 'bg-white text-black' : 'text-white/50 hover:text-white/80 hover:bg-white/5') + '">' + item.label + '</button>';
   }).join('');
-  return '' +
-  '<header class="sticky top-0 z-30 bg-[#0A0F18]/90 backdrop-blur border-b border-white/[0.06]" style="padding-top:var(--safe-area-inset-top,0px)">' +
-    '<div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">' +
-      '<button data-action="nav" data-id="home" class="flex items-center gap-2 shrink-0 active:scale-95">' +
-        '<div class="w-8 h-8 rounded-[10px] bg-[#66CCFF] text-black flex items-center justify-center">' + icon('Snowflake', 16) + '</div>' +
-        '<span class="font-semibold tracking-[-0.01em] text-[14px]">ARTIC SHIFT</span>' +
-      '</button>' +
-      '<nav class="hidden lg:flex items-center gap-1 p-1 rounded-full bg-[#111B28] border border-white/10">' + pills + '</nav>' +
-      '<button data-action="upload" class="lg:hidden h-10 min-h-[40px] px-4 rounded-full bg-white/10 hover:bg-white/15 text-[12px] font-medium flex items-center gap-1.5 active:scale-95">' + icon('CloudUpload', 14) + ' Upload</button>' +
-    '</div>' +
-  '</header>';
+  return '<div class="hidden lg:flex items-center justify-center gap-1 p-1 rounded-full bg-[#111B28] border border-white/10">' + pills + '</div>';
 }
 
 /* ------------------------------------------------------------------ */
@@ -991,36 +987,48 @@ function render() {
     : null;
 
   const showNav = state.screen !== 'onboarding';
-  const showChrome = state.screen !== 'onboarding';
 
   document.getElementById('root').innerHTML =
-  '<div class="min-h-[100dvh] w-full bg-[#0A0F18] text-white selection:bg-[#66CCFF]/30 overflow-x-hidden antialiased flex flex-col" style="font-family:Geist, system-ui, -apple-system, sans-serif">' +
-    // One global hidden picker: the navbar Upload button and every screen share it.
-    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="hidden" tabindex="-1">' +
+  '<div class="min-h-[100dvh] w-full bg-[#05080D] lg:bg-[#070A0F] text-white selection:bg-[#66CCFF]/30 overflow-x-hidden antialiased flex flex-col lg:items-center lg:justify-center lg:min-h-screen lg:p-6" style="font-family:Geist, system-ui, -apple-system, sans-serif;padding-top:var(--safe-area-inset-top, 0px)">' +
+    '<div class="hidden lg:flex flex-col items-center gap-3 mb-6 w-full max-w-[390px]">' +
+      '<div class="flex items-center gap-2">' +
+        '<div class="w-8 h-8 rounded-[10px] bg-[#66CCFF] text-black flex items-center justify-center">' + icon('Snowflake', 16) + '</div>' +
+        '<span class="text-[12px] font-semibold tracking-[-0.01em]">ARTIC SHIFT • #66CCFF</span>' +
+      '</div>' +
+      desktopNavHTML() +
+    '</div>' +
 
-    (showChrome ? topNavHTML() : '') +
+    '<div class="w-full flex-1 lg:flex-none lg:w-[390px] lg:h-[844px] lg:max-h-[844px] bg-[#0A0F18] relative flex flex-col overflow-hidden lg:rounded-[48px] lg:border-[10px] lg:border-[#141E2B] lg:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_30px_90px_rgba(0,0,0,0.7)] h-[100dvh] min-h-[100dvh] lg:min-h-0">' +
+      '<div class="hidden lg:flex absolute top-0 left-1/2 -translate-x-1/2 w-[96px] h-[28px] bg-[#141E2B] rounded-b-[16px] z-30 items-center justify-center gap-1.5 pointer-events-none">' +
+        '<div class="w-10 h-1.5 rounded-full bg-black/50"></div>' +
+        '<div class="w-2 h-2 rounded-full bg-black/30"></div>' +
+      '</div>' +
+      '<div class="hidden lg:block absolute -left-[13px] top-[120px] w-[3px] h-8 bg-[#141E2B] rounded-r-full"></div>' +
+      '<div class="hidden lg:block absolute -left-[13px] top-[160px] w-[3px] h-14 bg-[#141E2B] rounded-r-full"></div>' +
+      '<div class="hidden lg:block absolute -right-[13px] top-[140px] w-[3px] h-20 bg-[#141E2B] rounded-l-full"></div>' +
 
-    '<main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex-1">' +
-      '<div class="animate-[fadeIn_0.3s_ease]">' + screenHTML() + '</div>' +
-    '</main>' +
+      '<div class="flex-1 relative overflow-hidden flex flex-col w-full">' +
+        '<div class="h-full w-full animate-[fadeIn_0.3s_ease] flex flex-col">' + screenHTML() + '</div>' +
+      '</div>' +
 
-    (showChrome
-      ? '<footer class="mt-16 px-4 pb-[120px] lg:pb-10 text-center text-[11px] text-white/25 tracking-wide">Artic Shift &bull; private by design &mdash; files never leave your device &bull; icy blue #66CCFF</footer>'
-      : '') +
+      (showNav ? bottomNavHTML() : '') +
 
-    (showNav ? bottomNavHTML() : '') +
+      (state.parsing
+        ? '<div class="fixed lg:absolute inset-0 z-40 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">' +
+          '<div class="w-full max-w-[300px] rounded-[20px] bg-[#121D2B] border border-white/10 p-5 text-center">' +
+            '<div class="w-11 h-11 mx-auto rounded-[14px] bg-[#66CCFF]/15 text-[#66CCFF] flex items-center justify-center mb-3">' + icon('FileJson', 20) + '</div>' +
+            '<div class="text-[13px] font-medium truncate">' + esc(state.parsing.name) + '</div>' +
+            '<div class="text-[11px] text-white/40 mt-1 mb-4">Parsing on-device&hellip;</div>' +
+            '<div class="h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-[#66CCFF] transition-all" style="width:' + Math.round(state.parsing.pct) + '%"></div></div>' +
+            '<div class="mt-2 text-[11px] font-mono text-white/40">' + Math.round(state.parsing.pct) + '%</div>' +
+          '</div>' +
+          '</div>'
+        : '') +
 
-    (state.parsing
-      ? '<div class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">' +
-        '<div class="w-full max-w-[300px] rounded-[20px] bg-[#121D2B] border border-white/10 p-5 text-center">' +
-          '<div class="w-11 h-11 mx-auto rounded-[14px] bg-[#66CCFF]/15 text-[#66CCFF] flex items-center justify-center mb-3">' + icon('FileJson', 20) + '</div>' +
-          '<div class="text-[13px] font-medium truncate">' + esc(state.parsing.name) + '</div>' +
-          '<div class="text-[11px] text-white/40 mt-1 mb-4">Parsing on-device&hellip;</div>' +
-          '<div class="h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-[#66CCFF] transition-all" style="width:' + Math.round(state.parsing.pct) + '%"></div></div>' +
-          '<div class="mt-2 text-[11px] font-mono text-white/40">' + Math.round(state.parsing.pct) + '%</div>' +
-        '</div>' +
-        '</div>'
-      : '') +
+      '<div class="lg:hidden absolute bottom-1 left-1/2 -translate-x-1/2 w-[120px] h-[5px] rounded-full bg-white/20 z-30 pointer-events-none"></div>' +
+    '</div>' +
+
+    '<div class="hidden lg:block mt-6 text-[11px] text-white/25 tracking-wide text-center max-w-[390px] px-4">Mobile-first • 100% responsive • 390px native feel • tap upload works on phone • icy blue #66CCFF</div>' +
   '</div>';
 
   if (keepFocus) {
@@ -1040,7 +1048,8 @@ function go(screen) {
   state.screen = screen;
   state.copied = false;
   render();
-  if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo(0, 0);
+  const scroller = document.querySelector('#root .overflow-auto');
+  if (scroller) scroller.scrollTop = 0;
 }
 
 document.addEventListener('click', (e) => {

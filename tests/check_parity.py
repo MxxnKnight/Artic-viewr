@@ -33,10 +33,10 @@ PHRASES = [
     'File Stats', 'analyzed on-device', 'AVG / LINE', 'ERROR LINES',
     'Type distribution', 'Keys overview', 'Integrity', 'Time span',
     'Unique types', 'No stats yet',
-    # nav (mobile + desktop)
-    'Lines', 'Home', 'Stats', 'Onboarding', 'Viewer', 'Detail',
+    # nav (mobile bottom island + desktop top navbar)
+    'Lines', 'Home', 'Stats', 'Inspect',
     # shell
-    'ARTIC SHIFT • #66CCFF', '390px native feel', 'icy blue #66CCFF',
+    'private by design', 'files never leave your device', 'icy blue #66CCFF',
 ]
 
 # Strings that must NOT appear (old dummy data / React leftovers).

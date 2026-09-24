@@ -1,6 +1,6 @@
 # Artic Shift — JSONL Viewer
 
-A fast, offline-first viewer for massive multi-line JSON files (`.jsonl`, `.ljson`, `.ljsone`). Expand, search and inspect lines; stats, errors and key maps at a glance. Mobile-first (390px), presented in a phone frame on desktop.
+A fast, offline-first viewer for massive multi-line JSON files (`.jsonl`, `.ljson`, `.ljsone`). Expand, search and inspect lines; stats, errors and key maps at a glance. A real responsive website: sticky top navbar on desktop, bottom nav island on mobile.
 
 **Live:** https://mxxnknight.github.io/Artic-viewr/
 
@@ -22,6 +22,7 @@ python3 -m http.server 8000
 | `styles.css` | Utility stylesheet (compiled from the original mockup + small hand-added block) |
 | `icons.js` | Inline SVG icon set (Lucide-style, zero-dependency) |
 | `app.js` | All screens, state, rendering, events — plain vanilla JS |
+| `phone/` | Preserved copy of the old phone-frame layout (390px frame, notch, pill nav) — frozen for future reference, standalone |
 | `tests/` | Node harness + class-coverage and text-parity audits |
 
 ## Screens
