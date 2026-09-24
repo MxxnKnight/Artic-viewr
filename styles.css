@@ -136,3 +136,5 @@ body { font-family: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif; }
    container, so position:sticky descendants keep sticking to the viewport
    (overflow-x:hidden would break them). */
 [class~="overflow-x-clip"]{overflow-x:clip}
+/* Search-hit highlight used by the inspect view's file-wide search. */
+mark{background:rgba(102,204,255,.35);color:#fff;border-radius:3px;padding:0 1px}

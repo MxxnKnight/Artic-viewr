@@ -9,6 +9,8 @@ const ICONS = {
   Check: `<path d="M20 6 9 17l-5-5"/>`,
   ChevronLeft: `<path d="m15 18-6-6 6-6"/>`,
   ChevronRight: `<path d="m9 18 6-6-6-6"/>`,
+  ChevronUp: `<path d="m18 15-6-6-6 6"/>`,
+  ChevronDown: `<path d="m6 9 6 6 6-6"/>`,
   Clock: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
   CloudUpload: `<path d="M12 13v8"/><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17 4-4 4 4"/>`,
   Copy: `<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>`,

@@ -23,10 +23,10 @@ lines = lines.filter((l) => l.trim() !== "'use strict';");
 while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
 if (lines[lines.length - 1].trim() === 'render();') lines.pop();
 const src = lines.join('\n') +
-  '\n;global.__x = { state, parseFileContent, flattenJSON, visibleLines, allLines, computeStats, formatBytes, lineTime };';
+  '\n;global.__x = { state, parseFileContent, flattenJSON, visibleLines, allLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits };';
 (function () { eval(src); })();
 
-const { state, parseFileContent, flattenJSON, visibleLines, computeStats, formatBytes, lineTime } = global.__x;
+const { state, parseFileContent, flattenJSON, visibleLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits } = global.__x;
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -152,6 +152,31 @@ check('formatBytes MB', formatBytes(5 * 1024 * 1024) === '5.0 MB');
 check('lineTime valid', !isNaN(lineTime({ timestamp: '2024-01-01T00:00:00Z' })));
 check('lineTime empty', isNaN(lineTime({ timestamp: '' })));
 check('lineTime garbage', isNaN(lineTime({ timestamp: 'not-a-date' })));
+
+// --- detail search: file-wide match navigation ---------------------------------------
+state.doc = {
+  name: 't.jsonl', sizeBytes: 0,
+  lines: parseFileContent('t.jsonl', '{"id":"a","x":"hello"}\n{"id":"b","x":"world"}\n{"id":"c","x":"HELLO again"}\n'),
+  parsedMs: 1,
+};
+state.line = state.doc.lines[0];
+state.detailSearch = 'hello';
+state.detailMatch = 0;
+let dm = detailMatches();
+check('dsearch: 2 matches, case-insensitive', dm.length === 2 && dm[0].id === 'a' && dm[1].id === 'c', dm.length);
+check('dsearch: next wraps to first', gotoDetailMatch(2) && state.line.id === 'a' && state.detailMatch === 0, state.detailMatch);
+check('dsearch: prev wraps to last', gotoDetailMatch(-1) && state.line.id === 'c' && state.detailMatch === 1, state.detailMatch);
+check('dsearch: tree toggles cleared on jump', state.treeToggled.size === 0);
+state.detailSearch = 'zzz';
+check('dsearch: no matches -> false, line kept', gotoDetailMatch(0) === false && state.line.id === 'c');
+state.detailSearch = '   ';
+check('dsearch: blank query -> no matches', detailMatches().length === 0);
+check('markHits: wraps hit', markHits('a&amp;b hello', 'hello') === 'a&amp;b <mark>hello</mark>', markHits('a&amp;b hello', 'hello'));
+check('markHits: case-insensitive', markHits('HELLO x', 'hello') === '<mark>HELLO</mark> x');
+check('markHits: query with markup is escaped safely', markHits('&lt;hi&gt;', '<hi>') === '<mark>&lt;hi&gt;</mark>');
+check('markHits: multiple hits', markHits('aa aa', 'aa') === '<mark>aa</mark> <mark>aa</mark>');
+check('markHits: empty query passthrough', markHits('abc', '') === 'abc');
+state.doc = null; state.line = null; state.detailSearch = ''; state.detailMatch = 0;
 
 console.log(`parse tests: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
