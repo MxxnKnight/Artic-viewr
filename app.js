@@ -225,13 +225,16 @@ function highlightJSON(text) {
 /**
  * Collapsible JSON tree view. `path` identifies the node (for toggle state),
  * `level` controls the default collapsed state (deeper than 1 = collapsed).
+ * `q` is an optional lowercase search query: matching key/value text is
+ * wrapped in <mark>.
  */
-function treeHTML(data, path, level) {
-  if (data === null) return '<span class="text-[#FF8FD8]">null</span>';
+function treeHTML(data, path, level, q) {
+  q = q || '';
+  if (data === null) return '<span class="text-[#FF8FD8]">' + escHl('null', q) + '</span>';
   if (typeof data !== 'object') {
-    if (typeof data === 'string') return '<span class="text-[#C9F99A]">&quot;' + esc(data) + '&quot;</span>';
-    if (typeof data === 'number') return '<span class="text-[#FFC27A]">' + esc(data) + '</span>';
-    return '<span class="text-[#FF8FD8]">' + esc(String(data)) + '</span>';
+    if (typeof data === 'string') return '<span class="text-[#C9F99A]">&quot;' + escHl(data, q) + '&quot;</span>';
+    if (typeof data === 'number') return '<span class="text-[#FFC27A]">' + escHl(String(data), q) + '</span>';
+    return '<span class="text-[#FF8FD8]">' + escHl(String(data), q) + '</span>';
   }
   const isArr = Array.isArray(data);
   const entries = isArr ? data.map((v, i) => [i, v]) : Object.entries(data);
@@ -255,10 +258,10 @@ function treeHTML(data, path, level) {
       const childPath = path + '.' + k;
       html += '<div class="py-[1px]">';
       if (!isArr) {
-        html += '<span class="text-[#7DD3FF]">&quot;' + esc(k) + '&quot;</span>';
+        html += '<span class="text-[#7DD3FF]">&quot;' + escHl(k, q) + '&quot;</span>';
         html += '<span class="text-[#5A6B82]">: </span>';
       }
-      html += treeHTML(v, childPath, level + 1);
+      html += treeHTML(v, childPath, level + 1, q);
       if (idx < entries.length - 1) html += '<span class="text-[#5A6B82]">,</span>';
       html += '</div>';
     });
@@ -298,7 +301,6 @@ const state = {
   treeToggled: new Set(), // tree node paths the user explicitly toggled
   detailSearch: '',      // detail view: file-wide search query
   detailMatch: 0,        // detail view: index into the current match list
-  detailSearchAnchor: null, // line uid the user was viewing when the search began
   dragOver: false,        // dropzone drag state
   parsing: null,          // { name, pct } while a file is being parsed
   fileError: '',          // upload error message shown on home
@@ -316,27 +318,100 @@ function detailMatches() {
   return allLines().filter((l) => l.raw.toLowerCase().includes(q));
 }
 
-/** Move the detail view to match `idx` (wraps around); false when no matches. */
+/** Move the current match pointer to `idx` (wraps around); false when no matches. */
 function gotoDetailMatch(idx) {
   const m = detailMatches();
   if (!m.length) return false;
   state.detailMatch = ((idx % m.length) + m.length) % m.length;
-  state.line = m[state.detailMatch];
-  state.treeToggled.clear();
   return true;
 }
 
-/** Reconcile the detail view after the search query changed (call after setting detailSearch). */
-function detailSearchChanged(prevQuery) {
-  if (!String(prevQuery).trim() && state.detailSearch.trim()) {
-    state.detailSearchAnchor = state.line ? state.line.uid : null;
+/** esc() plus <mark> wrapping of case-insensitive query hits (q may be ''). */
+function escHl(text, q) {
+  const e = esc(text);
+  return q ? markHits(e, q) : e;
+}
+
+/** The record the Table tab and the Copy button act on: current search match,
+ *  else the focused line, else the first line. */
+function detailCurrentLine() {
+  const m = detailMatches();
+  if (m.length) return m[Math.min(state.detailMatch, m.length - 1)];
+  const lines = allLines();
+  return state.line || lines[0] || null;
+}
+
+/**
+ * Whole-file tree for the Inspect view: every line of the file is one
+ * collapsible record node. With a search query, only matching records are
+ * shown, fully expanded with <mark> highlights; the current match gets a
+ * highlight ring and the id "dmatch-cur" for scroll targeting.
+ */
+function detailTreeHTML() {
+  const lines = allLines();
+  const q = state.detailSearch.trim();
+  const ql = q.toLowerCase();
+  const matches = q ? detailMatches() : null;
+  const shown = matches || lines;
+  const mi = matches && matches.length ? Math.min(state.detailMatch, matches.length - 1) : -1;
+
+  let html = '<div class="rounded-[16px] bg-[#111B28] border border-white/[0.06] p-4 overflow-x-auto">';
+  if (q && !shown.length) {
+    return html +
+      '<div class="py-10 text-center text-[13px] text-white/40">No matches for ' +
+      '<span class="font-mono text-white/70">' + esc(q) + '</span></div></div>';
   }
-  // No matches: fall back to the line the user was viewing when the search began,
-  // instead of leaving the view on a stale partial-query match.
-  if (state.detailSearch.trim() && !gotoDetailMatch(0) && state.detailSearchAnchor) {
-    const anchor = allLines().find((l) => l.uid === state.detailSearchAnchor);
-    if (anchor) { state.line = anchor; state.treeToggled.clear(); }
-  }
+  html += '<div class="pb-3 mb-3 border-b border-white/[0.06] text-[11px] font-mono text-white/40">' +
+    (q ? shown.length + ' of ' + lines.length + ' records match' : lines.length + ' records — tap a record to expand') + '</div>';
+
+  shown.forEach((line) => {
+    const recPath = 'rec:' + line.uid;
+    const expanded = q ? true : state.treeToggled.has(recPath);
+    const isCur = q && shown[mi] === line;
+    const parsed = parseLine(line);
+    const label = '#' + line.n + ' · ' + (line.id || line.type || 'record');
+    html += '<div id="drec-' + line.uid + '" class="py-1">';
+    if (isCur) html += '<div id="dmatch-cur" class="rounded-[12px] border border-[#66CCFF]/20 bg-[#66CCFF]/10 px-2 py-1">';
+    html += '<button data-action="tree-toggle" data-path="' + esc(recPath) + '" class="cursor-pointer select-none inline-flex items-center gap-2 max-w-full min-h-[32px] text-left">' +
+      '<span class="text-[10px] text-[#5A6B82] shrink-0">' + (expanded ? '▼' : '▶') + '</span>' +
+      '<span class="font-mono text-[12px] text-white/80 truncate">' + esc(label) + '</span>' +
+      '<span class="font-mono text-[10px] text-white/30 shrink-0">' + line.raw.length.toLocaleString() + ' chars</span>' +
+      (line.error ? '<span class="font-mono text-[10px] text-[#FF9A6C] shrink-0">Parse error</span>' : '') +
+      '</button>';
+    if (expanded) {
+      html += '<div class="ml-[14px] border-l border-[#1E2D40] pl-3 py-1">';
+      if (line.error) {
+        html += '<div class="font-mono text-[11px] text-[#FF9A6C]/80 break-all">' + esc(line.error) + '</div>' +
+          '<div class="mt-1 font-mono text-[11px] text-white/50 break-all">' + escHl(line.raw, ql) + '</div>';
+      } else if (parsed && typeof parsed === 'object') {
+        const isArr = Array.isArray(parsed);
+        const entries = isArr ? parsed.map((v, i) => [i, v]) : Object.entries(parsed);
+        entries.forEach(([k, v], idx) => {
+          const childPath = recPath + '.' + k;
+          html += '<div class="py-[1px] font-mono text-[13px] leading-[20px]">';
+          if (!isArr) {
+            html += '<span class="text-[#7DD3FF]">&quot;' + escHl(k, ql) + '&quot;</span><span class="text-[#5A6B82]">: </span>';
+          }
+          html += treeHTML(v, childPath, 1, ql);
+          if (idx < entries.length - 1) html += '<span class="text-[#5A6B82]">,</span>';
+          html += '</div>';
+        });
+      } else {
+        html += '<div class="font-mono text-[13px]">' + treeHTML(parsed, recPath + '.v', 1, ql) + '</div>';
+      }
+      html += '</div>';
+    }
+    if (isCur) html += '</div>';
+    html += '</div>';
+  });
+  return html + '</div>';
+}
+
+/** Scroll the current search match into view (Inspect tree). No-op in tests. */
+function scrollToCurMatch() {
+  if (typeof document === 'undefined' || !document.getElementById) return;
+  const el = document.getElementById('dmatch-cur');
+  if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' });
 }
 
 /** Wrap case-insensitive occurrences of query in <mark>; input must be esc()-ed HTML. */
@@ -723,7 +798,7 @@ function viewerHTML() {
       '<div class="mt-4 relative">' +
         icon('Search', 16, 'absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none') +
         '<input id="search" type="text" value="' + esc(state.search) + '" placeholder="Search id, type, keys\u2026" autocomplete="off" class="w-full h-11 min-h-[44px] rounded-[12px] bg-[#111B28] border border-white/[0.06] pl-10 pr-10 text-[14px] placeholder:text-white/30 focus:outline-none focus:border-[#66CCFF]/40 focus:bg-[#121E2E]">' +
-        (state.search ? '<button data-action="clear-search" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white/10 flex items-center justify-center text-[12px] active:scale-90">\u2715</button>' : '') +
+        (state.search ? '<button data-action="clear-search" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white/10 flex items-center justify-center text-[12px]">\u2715</button>' : '') +
       '</div>' +
       '<div class="mt-3 flex gap-2 overflow-auto scrollbar-none pb-1">' + chips + '</div>' +
     '</div>' +
@@ -774,19 +849,19 @@ function summaryCardsHTML(parsed) {
 }
 
 function detailHTML() {
-  const line = state.line;
-  if (!line) {
+  const lines = allLines();
+  if (!lines.length) {
     return '' +
     '<div class="py-20 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">' +
       '<div class="w-14 h-14 rounded-[18px] bg-white/5 flex items-center justify-center mb-4">' + icon('Braces', 24, 'text-white/20') + '</div>' +
-      '<div class="text-[14px] font-medium">No line selected</div>' +
-      '<div class="text-[12px] text-white/40 mt-1 max-w-[220px]">Tap Inspect on any line in the viewer to open detail view</div>' +
+      '<div class="text-[14px] font-medium">No file loaded</div>' +
+      '<div class="text-[12px] text-white/40 mt-1 max-w-[220px]">Upload a JSONL file to inspect the whole file as one tree</div>' +
     '</div>';
   }
 
-  const parsed = parseLine(line);
   const copyIcon = state.copied ? icon('Check', 14) : icon('Copy', 14);
   const copyLabel = state.copied ? 'Copied' : 'Copy';
+  const cur = detailCurrentLine();
 
   // File-wide search state for the inspect view.
   const dm = detailMatches();
@@ -797,30 +872,23 @@ function detailHTML() {
     '<button data-action="' + action + '" aria-label="' + action + '" class="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full flex items-center justify-center active:scale-90 ' +
     (enabled ? 'bg-white/5 hover:bg-white/10 text-white/70' : 'bg-white/5 text-white/30') + '">' + icon(ic, 14) + '</button>';
 
-  let body;
-  if (line.error) {
-    body =
-      '<div class="rounded-[16px] bg-[#FF9A6C]/10 border border-[#FF9A6C]/20 p-4">' +
-        '<div class="flex items-center gap-2 text-[#FF9A6C] text-[13px] font-medium">' + icon('TriangleAlert', 16) + ' Parse error</div>' +
-        '<div class="mt-2 font-mono text-[12px] text-[#FF9A6C]/80">' + esc(line.error) + '</div>' +
-        '<div class="mt-3 p-2.5 rounded-[10px] bg-black/20 font-mono text-[11px] text-white/60 break-all max-w-full">' + esc(line.raw) + '</div>' +
-      '</div>';
-  } else if (state.detailTab === 'tree') {
-    body =
-      '<div class="rounded-[16px] bg-[#111B28] border border-white/[0.06] p-4 overflow-x-auto">' +
-        (parsed ? treeHTML(parsed, '', 0) : '<span class="text-white/40">Invalid JSON</span>') +
-      '</div>';
+  let body, rightMeta;
+  if (state.detailTab === 'tree') {
+    body = detailTreeHTML();
+    rightMeta = lines.length + ' records';
   } else if (state.detailTab === 'table') {
-    body = parsed ? tableHTML(parsed)
+    const parsed = parseLine(cur);
+    body = (cur && parsed) ? tableHTML(parsed)
       : '<div class="rounded-[16px] bg-[#111B28] border border-white/[0.06] p-4 text-white/40">Invalid JSON</div>';
+    rightMeta = cur ? 'record #' + cur.n + ' · ' + (cur.id || cur.type) : '';
   } else {
-    const rawInner = (hasQ && dm.length)
-      ? markHits(esc(line.raw), state.detailSearch.trim())
-      : highlightJSON(JSON.stringify(parsed, null, 2));
+    const shown = hasQ ? dm : lines;
+    const rawInner = shown.map((l) => hasQ ? markHits(esc(l.raw), state.detailSearch.trim()) : esc(l.raw)).join('\n');
     body =
       '<div class="rounded-[16px] bg-[#111B28] border border-white/[0.06] p-4 overflow-auto max-w-full">' +
         '<pre class="font-mono text-[12px] leading-[18px] whitespace-pre-wrap break-all">' + rawInner + '</pre>' +
       '</div>';
+    rightMeta = shown.length + ' lines';
   }
 
   const tabBtn = (v, ic, label) =>
@@ -832,17 +900,17 @@ function detailHTML() {
     '<div class="pb-4 border-b border-white/[0.06] flex items-center gap-3">' +
       '<button data-action="back" class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center shrink-0 active:scale-95">' + icon('ChevronLeft', 18) + '</button>' +
       '<div class="flex-1 min-w-0">' +
-        '<div class="text-[13px] font-mono font-medium truncate">' + esc(line.id) + '</div>' +
-        '<div class="text-[11px] text-white/40 flex items-center gap-2 truncate"><span>' + esc(line.type) + '</span>' + (line.timestamp ? '<span>•</span><span class="truncate">' + esc(line.timestamp) + '</span>' : '') + '</div>' +
+        '<div class="text-[14px] font-medium truncate">Inspect</div>' +
+        '<div class="text-[11px] text-white/40 truncate">' + esc(state.doc.name) + ' · ' + lines.length + ' lines · whole file</div>' +
       '</div>' +
-      '<button data-action="copy-detail" class="h-11 min-h-[44px] px-4 rounded-full bg-[#66CCFF] text-black text-[12px] font-medium flex items-center gap-1.5 shrink-0 active:scale-95">' + copyIcon + ' ' + copyLabel + '</button>' +
+      '<button data-action="copy-detail" title="Copy current record" class="h-11 min-h-[44px] px-4 rounded-full bg-[#66CCFF] text-black text-[12px] font-medium flex items-center gap-1.5 shrink-0 active:scale-95">' + copyIcon + ' ' + copyLabel + '</button>' +
     '</div>' +
 
-    '<div class="flex items-center gap-2">' +
+    '<div class="flex items-center gap-2 mt-4">' +
       '<div class="relative flex-1 min-w-0">' +
         icon('Search', 16, 'absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none') +
         '<input id="dsearch" type="text" value="' + esc(state.detailSearch) + '" placeholder="Search whole file\u2026" autocomplete="off" class="w-full h-11 min-h-[44px] rounded-[12px] bg-[#111B28] border border-white/[0.06] pl-10 pr-10 text-[14px] placeholder:text-white/30 focus:outline-none focus:border-[#66CCFF]/40 focus:bg-[#121E2E]">' +
-        (hasQ ? '<button data-action="dsearch-clear" aria-label="Clear search" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white/10 flex items-center justify-center text-[12px] active:scale-90">\u2715</button>' : '') +
+        (hasQ ? '<button data-action="dsearch-clear" aria-label="Clear search" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white/10 flex items-center justify-center text-[12px]">\u2715</button>' : '') +
       '</div>' +
       (hasQ
         ? '<span class="text-[11px] font-mono text-white/40 shrink-0">' + matchLabel + '</span>' +
@@ -859,13 +927,10 @@ function detailHTML() {
         tabBtn('table', 'Table', 'Table') +
         tabBtn('raw', 'FileText', 'Raw') +
       '</div>' +
-      '<div class="text-[11px] text-white/30 font-mono shrink-0">' + line.raw.length + ' chars</div>' +
+      '<div class="text-[11px] text-white/30 font-mono shrink-0">' + rightMeta + '</div>' +
     '</div>' +
 
-    '<div>' +
-      body +
-      (line.error ? '' : summaryCardsHTML(parsed)) +
-    '</div>' +
+    '<div>' + body + '</div>' +
   '</div>';
 }
 
@@ -1191,8 +1256,18 @@ document.addEventListener('click', (e) => {
     }
     case 'inspect': {
       const line = allLines().find((x) => x.uid === Number(el.dataset.uid));
-      if (line) { state.line = line; state.detailTab = 'tree'; state.treeToggled.clear(); state.detailSearch = ''; state.detailMatch = 0; state.detailSearchAnchor = null; }
+      if (line) {
+        state.line = line;
+        state.detailTab = 'tree';
+        state.detailSearch = '';
+        state.detailMatch = 0;
+        state.treeToggled.add('rec:' + line.uid); // expand the inspected record
+      }
       go('detail');
+      if (line && typeof document !== 'undefined' && document.getElementById) {
+        const target = document.getElementById('drec-' + line.uid);
+        if (target && target.scrollIntoView) target.scrollIntoView({ block: 'center' });
+      }
       break;
     }
     case 'copy-line': {
@@ -1242,15 +1317,17 @@ document.addEventListener('click', (e) => {
     case 'back':
       go('viewer');
       break;
-    case 'copy-detail':
-      if (state.line) {
-        copyText(state.line.raw).then(() => {
+    case 'copy-detail': {
+      const curLine = detailCurrentLine();
+      if (curLine) {
+        copyText(curLine.raw).then(() => {
           state.copied = true;
           render();
           setTimeout(() => { state.copied = false; render(); }, 1200);
         });
       }
       break;
+    }
     case 'tab':
       if (['tree', 'table', 'raw'].includes(el.dataset.v)) state.detailTab = el.dataset.v;
       render();
@@ -1258,19 +1335,18 @@ document.addEventListener('click', (e) => {
     case 'dsearch-prev':
       if (gotoDetailMatch(state.detailMatch - 1)) {
         render();
-        if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo(0, 0);
+        scrollToCurMatch();
       }
       break;
     case 'dsearch-next':
       if (gotoDetailMatch(state.detailMatch + 1)) {
         render();
-        if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo(0, 0);
+        scrollToCurMatch();
       }
       break;
     case 'dsearch-clear':
       state.detailSearch = '';
       state.detailMatch = 0;
-      state.detailSearchAnchor = null;
       render();
       break;
     case 'tree-toggle': {
@@ -1293,9 +1369,8 @@ document.addEventListener('input', (e) => {
     render();
   }
   if (e.target && e.target.id === 'dsearch') {
-    const prevQ = state.detailSearch;
     state.detailSearch = e.target.value;
-    detailSearchChanged(prevQ);
+    state.detailMatch = 0;
     render();
   }
 });
@@ -1320,7 +1395,7 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (gotoDetailMatch(state.detailMatch + 1)) {
       render();
-      if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo(0, 0);
+      scrollToCurMatch();
     }
   }
 });
@@ -1451,7 +1526,6 @@ function finishParse(file, lines, t0) {
   state.treeToggled.clear();
   state.detailSearch = '';
   state.detailMatch = 0;
-  state.detailSearchAnchor = null;
   resetWindow();
   go('viewer');
 }

@@ -23,10 +23,10 @@ lines = lines.filter((l) => l.trim() !== "'use strict';");
 while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
 if (lines[lines.length - 1].trim() === 'render();') lines.pop();
 const src = lines.join('\n') +
-  '\n;global.__x = { state, parseFileContent, flattenJSON, visibleLines, allLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits, detailSearchChanged };';
+  '\n;global.__x = { state, parseFileContent, flattenJSON, visibleLines, allLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits, escHl, detailCurrentLine, detailTreeHTML, treeHTML, parseLine };';
 (function () { eval(src); })();
 
-const { state, parseFileContent, flattenJSON, visibleLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits, detailSearchChanged } = global.__x;
+const { state, parseFileContent, flattenJSON, visibleLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits, escHl, detailCurrentLine, detailTreeHTML, treeHTML, parseLine } = global.__x;
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -164,11 +164,11 @@ state.detailSearch = 'hello';
 state.detailMatch = 0;
 let dm = detailMatches();
 check('dsearch: 2 matches, case-insensitive', dm.length === 2 && dm[0].id === 'a' && dm[1].id === 'c', dm.length);
-check('dsearch: next wraps to first', gotoDetailMatch(2) && state.line.id === 'a' && state.detailMatch === 0, state.detailMatch);
-check('dsearch: prev wraps to last', gotoDetailMatch(-1) && state.line.id === 'c' && state.detailMatch === 1, state.detailMatch);
-check('dsearch: tree toggles cleared on jump', state.treeToggled.size === 0);
+check('dsearch: next wraps pointer to first', gotoDetailMatch(2) && state.detailMatch === 0, state.detailMatch);
+check('dsearch: prev wraps pointer to last', gotoDetailMatch(-1) && state.detailMatch === 1, state.detailMatch);
+check('dsearch: navigation does not move the focused line', state.line.id === 'a');
 state.detailSearch = 'zzz';
-check('dsearch: no matches -> false, line kept', gotoDetailMatch(0) === false && state.line.id === 'c');
+check('dsearch: no matches -> false', gotoDetailMatch(0) === false);
 state.detailSearch = '   ';
 check('dsearch: blank query -> no matches', detailMatches().length === 0);
 check('markHits: wraps hit', markHits('a&amp;b hello', 'hello') === 'a&amp;b <mark>hello</mark>', markHits('a&amp;b hello', 'hello'));
@@ -176,16 +176,48 @@ check('markHits: case-insensitive', markHits('HELLO x', 'hello') === '<mark>HELL
 check('markHits: query with markup is escaped safely', markHits('&lt;hi&gt;', '<hi>') === '<mark>&lt;hi&gt;</mark>');
 check('markHits: multiple hits', markHits('aa aa', 'aa') === '<mark>aa</mark> <mark>aa</mark>');
 check('markHits: empty query passthrough', markHits('abc', '') === 'abc');
-// Anchor: typing a query with no matches restores the pre-search line.
-state.line = state.doc.lines[1]; // 'b', no 'hello'
+check('escHl: no query -> plain esc', escHl('<a>', '') === '&lt;a&gt;');
+check('escHl: query highlights escaped text', escHl('say hello', 'hello') === 'say <mark>hello</mark>');
+check('escHl: query with markup is safe', escHl('<b>', '<b>') === '<mark>&lt;b&gt;</mark>');
+// Whole-file tree: all records shown collapsed by default.
+state.detailSearch = '';
+state.detailMatch = 0;
+state.treeToggled.clear();
+let dth = detailTreeHTML();
+check('dtree: all 3 records listed', (dth.match(/data-path="rec:/g) || []).length === 3, (dth.match(/data-path="rec:/g) || []).length);
+check('dtree: collapsed by default (values hidden)', !dth.includes('&quot;hello&quot;') && !dth.includes('&quot;world&quot;'));
+check('dtree: record labels present', dth.includes('#1 · a') && dth.includes('#3 · c'));
+// Toggle one record open: its content renders.
+state.treeToggled.add('rec:' + state.doc.lines[0].uid);
+dth = detailTreeHTML();
+check('dtree: toggled record expands', dth.includes('&quot;hello&quot;'));
+state.treeToggled.clear();
+// Search filters to matching records, expanded, with highlights.
 state.detailSearch = 'hello';
 state.detailMatch = 0;
-detailSearchChanged('');
-check('dsearch: match jumps to first hit', state.line.id === 'a' && state.detailSearchAnchor === state.doc.lines[1].uid, state.line.id);
-state.detailSearch = 'hellozzz';
-detailSearchChanged('hello');
-check('dsearch: 0 matches restores anchor line', state.line.id === 'b', state.line.id);
-state.doc = null; state.line = null; state.detailSearch = ''; state.detailMatch = 0; state.detailSearchAnchor = null;
+dth = detailTreeHTML();
+check('dtree: search shows only matches', dth.includes('#1 · a') && dth.includes('#3 · c') && !dth.includes('#2 · b'));
+check('dtree: matches expanded with content', dth.includes('&quot;<mark>hello</mark>&quot;'));
+check('dtree: <mark> highlights present', dth.includes('<mark>hello</mark>') || dth.includes('<mark>HELLO</mark>'));
+check('dtree: current match ring target present', dth.includes('id="dmatch-cur"'));
+check('dtree: match counter text', dth.includes('2 of 3 records match'));
+// No matches: empty state, no strand.
+state.detailSearch = 'qqqzzz';
+dth = detailTreeHTML();
+check('dtree: 0 matches shows empty state', dth.includes('No matches for') && !dth.includes('dmatch-cur'));
+// detailCurrentLine: match > focused line > first line.
+state.detailSearch = 'hello'; state.detailMatch = 1;
+check('dcurrent: current match wins', detailCurrentLine().id === 'c');
+state.detailSearch = ''; state.line = state.doc.lines[1];
+check('dcurrent: focused line when no search', detailCurrentLine().id === 'b');
+state.line = null;
+check('dcurrent: first line fallback', detailCurrentLine().id === 'a');
+// treeHTML highlight param.
+const th = treeHTML({ greeting: 'hello world', n: 42 }, 'p', 0, 'hello');
+check('treeHTML: highlights key/value hits', th.includes('<mark>hello</mark>'));
+const th2 = treeHTML({ greeting: 'hello world' }, 'p', 0, '');
+check('treeHTML: no query -> no marks', !th2.includes('<mark>'));
+state.doc = null; state.line = null; state.detailSearch = ''; state.detailMatch = 0;
 
 console.log(`parse tests: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
