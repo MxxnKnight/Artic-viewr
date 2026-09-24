@@ -298,6 +298,7 @@ const state = {
   treeToggled: new Set(), // tree node paths the user explicitly toggled
   detailSearch: '',      // detail view: file-wide search query
   detailMatch: 0,        // detail view: index into the current match list
+  detailSearchAnchor: null, // line uid the user was viewing when the search began
   dragOver: false,        // dropzone drag state
   parsing: null,          // { name, pct } while a file is being parsed
   fileError: '',          // upload error message shown on home
@@ -323,6 +324,19 @@ function gotoDetailMatch(idx) {
   state.line = m[state.detailMatch];
   state.treeToggled.clear();
   return true;
+}
+
+/** Reconcile the detail view after the search query changed (call after setting detailSearch). */
+function detailSearchChanged(prevQuery) {
+  if (!String(prevQuery).trim() && state.detailSearch.trim()) {
+    state.detailSearchAnchor = state.line ? state.line.uid : null;
+  }
+  // No matches: fall back to the line the user was viewing when the search began,
+  // instead of leaving the view on a stale partial-query match.
+  if (state.detailSearch.trim() && !gotoDetailMatch(0) && state.detailSearchAnchor) {
+    const anchor = allLines().find((l) => l.uid === state.detailSearchAnchor);
+    if (anchor) { state.line = anchor; state.treeToggled.clear(); }
+  }
 }
 
 /** Wrap case-insensitive occurrences of query in <mark>; input must be esc()-ed HTML. */
@@ -1177,7 +1191,7 @@ document.addEventListener('click', (e) => {
     }
     case 'inspect': {
       const line = allLines().find((x) => x.uid === Number(el.dataset.uid));
-      if (line) { state.line = line; state.detailTab = 'tree'; state.treeToggled.clear(); state.detailSearch = ''; state.detailMatch = 0; }
+      if (line) { state.line = line; state.detailTab = 'tree'; state.treeToggled.clear(); state.detailSearch = ''; state.detailMatch = 0; state.detailSearchAnchor = null; }
       go('detail');
       break;
     }
@@ -1256,6 +1270,7 @@ document.addEventListener('click', (e) => {
     case 'dsearch-clear':
       state.detailSearch = '';
       state.detailMatch = 0;
+      state.detailSearchAnchor = null;
       render();
       break;
     case 'tree-toggle': {
@@ -1278,8 +1293,9 @@ document.addEventListener('input', (e) => {
     render();
   }
   if (e.target && e.target.id === 'dsearch') {
+    const prevQ = state.detailSearch;
     state.detailSearch = e.target.value;
-    gotoDetailMatch(0);
+    detailSearchChanged(prevQ);
     render();
   }
 });
@@ -1435,6 +1451,7 @@ function finishParse(file, lines, t0) {
   state.treeToggled.clear();
   state.detailSearch = '';
   state.detailMatch = 0;
+  state.detailSearchAnchor = null;
   resetWindow();
   go('viewer');
 }

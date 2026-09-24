@@ -23,10 +23,10 @@ lines = lines.filter((l) => l.trim() !== "'use strict';");
 while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
 if (lines[lines.length - 1].trim() === 'render();') lines.pop();
 const src = lines.join('\n') +
-  '\n;global.__x = { state, parseFileContent, flattenJSON, visibleLines, allLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits };';
+  '\n;global.__x = { state, parseFileContent, flattenJSON, visibleLines, allLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits, detailSearchChanged };';
 (function () { eval(src); })();
 
-const { state, parseFileContent, flattenJSON, visibleLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits } = global.__x;
+const { state, parseFileContent, flattenJSON, visibleLines, computeStats, formatBytes, lineTime, detailMatches, gotoDetailMatch, markHits, detailSearchChanged } = global.__x;
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -176,7 +176,16 @@ check('markHits: case-insensitive', markHits('HELLO x', 'hello') === '<mark>HELL
 check('markHits: query with markup is escaped safely', markHits('&lt;hi&gt;', '<hi>') === '<mark>&lt;hi&gt;</mark>');
 check('markHits: multiple hits', markHits('aa aa', 'aa') === '<mark>aa</mark> <mark>aa</mark>');
 check('markHits: empty query passthrough', markHits('abc', '') === 'abc');
-state.doc = null; state.line = null; state.detailSearch = ''; state.detailMatch = 0;
+// Anchor: typing a query with no matches restores the pre-search line.
+state.line = state.doc.lines[1]; // 'b', no 'hello'
+state.detailSearch = 'hello';
+state.detailMatch = 0;
+detailSearchChanged('');
+check('dsearch: match jumps to first hit', state.line.id === 'a' && state.detailSearchAnchor === state.doc.lines[1].uid, state.line.id);
+state.detailSearch = 'hellozzz';
+detailSearchChanged('hello');
+check('dsearch: 0 matches restores anchor line', state.line.id === 'b', state.line.id);
+state.doc = null; state.line = null; state.detailSearch = ''; state.detailMatch = 0; state.detailSearchAnchor = null;
 
 console.log(`parse tests: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
