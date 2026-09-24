@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sticky diagnostic</title>
+<style>
+  body { margin: 0; background: #0A0F18; color: #fff; font-family: sans-serif; overflow-x: hidden; }
+  .spacer { height: 120vh; display: flex; align-items: center; justify-content: center; color: #5A6B82; }
+  .bar { position: sticky; top: 0; height: 56px; display: flex; align-items: center; justify-content: center;
+         font-weight: bold; z-index: 30; font-size: 15px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .fade { animation: fadeIn .3s ease; }
+</style>
+</head>
+<body>
+  <div class="spacer">scroll down &darr;</div>
+
+  <!-- CASE A: bar direct child of body (body has overflow-x:hidden) -->
+  <div class="bar" style="background:#3b82f6">A: direct child of body</div>
+  <div class="spacer">case A spacer</div>
+
+  <!-- CASE B: wrapper with overflow-x:clip -->
+  <div style="overflow-x: clip">
+    <div class="bar" style="background:#22c55e">B: inside overflow-x:clip</div>
+  </div>
+  <div class="spacer">case B spacer</div>
+
+  <!-- CASE C: wrapper with overflow-x:hidden (old app behavior) -->
+  <div style="overflow-x: hidden">
+    <div class="bar" style="background:#ef4444">C: inside overflow-x:hidden</div>
+  </div>
+  <div class="spacer">case C spacer</div>
+
+  <!-- CASE D: plain wrapper, no overflow -->
+  <div>
+    <div class="bar" style="background:#a855f7">D: inside plain wrapper</div>
+  </div>
+  <div class="spacer">case D spacer</div>
+
+  <!-- CASE E: inside completed fadeIn animation wrapper -->
+  <div class="fade">
+    <div class="bar" style="background:#f59e0b">E: inside fadeIn wrapper</div>
+  </div>
+  <div class="spacer">case E spacer</div>
+
+  <!-- CASE F: flex column wrapper like app main -->
+  <div style="display:flex;flex-direction:column">
+    <div class="bar" style="background:#06b6d4">F: inside flex column</div>
+  </div>
+  <div class="spacer">end &darr;</div>
+</body>
+</html>
