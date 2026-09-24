@@ -114,8 +114,27 @@ function parseFileContent(name, text) {
       arr.forEach((el, i) => lines.push(makeLine(i, i + 1, el, el)));
       return lines;
     } catch (e) {
+      // Not a single JSON document — it may be JSONL saved with a .json
+      // extension. Fall through to line-delimited parsing; malformed lines
+      // become individual inspectable error records. If no line parses on
+      // its own, keep the original whole-file error instead.
+      const wholeFileError = 'Invalid JSON: ' + e.message;
+      const tmp = [];
+      let n = 0, ok = 0;
+      for (const rl of text.split(/\r?\n/)) {
+        if (!rl.trim()) continue;
+        n++;
+        try {
+          tmp.push(makeLine(tmp.length, n, rl, JSON.parse(rl)));
+          ok++;
+        } catch (err) {
+          tmp.push(makeLine(tmp.length, n, rl, undefined,
+            'Line ' + n + ': ' + err.message));
+        }
+      }
+      if (ok > 0) return tmp;
       lines.push(makeLine(0, 1, trimmed.slice(0, 2000), undefined,
-        'Invalid JSON: ' + e.message));
+        wholeFileError));
       return lines;
     }
   }
