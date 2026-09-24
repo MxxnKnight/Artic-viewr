@@ -38,15 +38,25 @@
     I: { label: 'I: flexcol + overflow-x:clip (app root combo)', color: '#f472b6',
          html: '<div class="flexcol" style="overflow-x:clip"><div class="bar" style="background:#f472b6">I: flexcol+clip</div><div class="spacer">I spacer</div></div>' },
     J: { label: 'J: flexcol + clip + min-height:100dvh (exact app root)', color: '#fb923c',
-         html: '<div class="flexcol" style="overflow-x:clip;min-height:100dvh"><div class="bar" style="background:#fb923c">J: exact app root</div><div class="spacer">J spacer</div></div>' }
+         html: '<div class="flexcol" style="overflow-x:clip;min-height:100dvh"><div class="bar" style="background:#fb923c">J: exact app root</div><div class="spacer">J spacer</div></div>' },
+    K: { label: 'K: J-structure + html{overflow-x:hidden}', color: '#facc15', htmlOverflowX: 'hidden',
+         html: '<div class="flexcol" style="overflow-x:clip;min-height:100dvh"><div class="bar" style="background:#facc15">K: html ox-hidden</div><div class="spacer">K spacer</div></div>' },
+    L: { label: 'L: J-structure + html AND body overflow-x:hidden (app CSS)', color: '#fb7185', htmlOverflowX: 'hidden', bodyOverflowX: 'hidden',
+         html: '<div class="flexcol" style="overflow-x:clip;min-height:100dvh"><div class="bar" style="background:#fb7185">L: app CSS</div><div class="spacer">L spacer</div></div>' }
   };
   var root = document.getElementById('root');
+  function renderCase(k) {
+    var c = cases[k];
+    document.documentElement.style.overflowX = c.htmlOverflowX || '';
+    document.body.style.overflowX = c.bodyOverflowX || 'hidden';
+    document.title = 'sticky diagnostic ' + k;
+    root.innerHTML = c.html;
+  }
   if (CASE === 'ALL') {
     root.innerHTML = '<div class="spacer">scroll &darr;</div>' +
       Object.keys(cases).map(function (k) { return cases[k].html; }).join('');
   } else if (cases[CASE]) {
-    document.title = 'sticky diagnostic ' + CASE;
-    root.innerHTML = cases[CASE].html;
+    renderCase(CASE);
   } else {
     root.innerHTML = '<div class="spacer">unknown case</div>';
   }
