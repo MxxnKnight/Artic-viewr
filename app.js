@@ -360,7 +360,7 @@ function onboardingHTML() {
   ).join('');
 
   return '' +
-  '<div class="relative overflow-hidden">' +
+  '<div class="relative overflow-hidden flex-1 flex flex-col justify-center">' +
     '<div class="absolute -top-[120px] -left-[80px] w-[340px] h-[340px] bg-[#66CCFF]/25 rounded-full blur-[80px] pointer-events-none"></div>' +
     '<div class="absolute top-[180px] -right-[100px] w-[300px] h-[300px] bg-[#66CCFF]/15 rounded-full blur-[70px] pointer-events-none"></div>' +
     '<div class="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-[#66CCFF]/10 to-transparent pointer-events-none"></div>' +
@@ -994,14 +994,14 @@ function render() {
   const showChrome = state.screen !== 'onboarding';
 
   document.getElementById('root').innerHTML =
-  '<div class="min-h-[100dvh] w-full bg-[#0A0F18] text-white selection:bg-[#66CCFF]/30 overflow-x-hidden antialiased flex flex-col" style="font-family:Geist, system-ui, -apple-system, sans-serif">' +
+  '<div class="min-h-[100dvh] w-full bg-[#0A0F18] text-white selection:bg-[#66CCFF]/30 overflow-x-clip antialiased flex flex-col" style="font-family:Geist, system-ui, -apple-system, sans-serif">' +
     // One global hidden picker: the navbar Upload button and every screen share it.
     '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="filepicker-visually-hidden" tabindex="-1">' +
 
     (showChrome ? topNavHTML() : '') +
 
-    '<main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex-1">' +
-      '<div class="animate-[fadeIn_0.3s_ease]">' + screenHTML() + '</div>' +
+    '<main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex flex-col">' +
+      '<div class="animate-[fadeIn_0.3s_ease] flex-1 flex flex-col">' + screenHTML() + '</div>' +
     '</main>' +
 
     (showChrome
