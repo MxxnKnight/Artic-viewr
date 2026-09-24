@@ -125,3 +125,6 @@ body { font-family: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif; }
 [class~="lg:text-[36px]"]{font-size:36px}
 [class~="lg:text-[44px]"]{font-size:44px}
 }
+/* Visually-hidden but rendered file input: programmatic .click() opens the
+   file chooser reliably, unlike display:none which browsers may refuse. */
+[class~="filepicker-visually-hidden"]{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}

@@ -473,7 +473,7 @@ function homeHTML() {
 
   return '' +
   '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
-    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="hidden" tabindex="-1">' +
+    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="filepicker-visually-hidden" tabindex="-1">' +
     '<div class="px-5 sm:px-6 pt-[calc(16px+var(--safe-area-inset-top,0px))] lg:pt-14 pb-4 shrink-0">' +
       '<div class="flex items-center justify-between">' +
         '<div>' +
@@ -544,7 +544,7 @@ function viewerHTML() {
   if (!doc) {
     return '' +
     '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
-      '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="hidden" tabindex="-1">' +
+      '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="filepicker-visually-hidden" tabindex="-1">' +
       '<div class="flex-1 flex flex-col items-center justify-center px-8 text-center">' +
         '<div class="w-16 h-16 rounded-[20px] bg-[#66CCFF]/10 border border-[#66CCFF]/20 flex items-center justify-center text-[#66CCFF] mb-5">' + icon('CloudUpload', 28) + '</div>' +
         '<div class="text-[16px] font-semibold">No file loaded</div>' +
@@ -637,7 +637,7 @@ function viewerHTML() {
 
   return '' +
   '<div class="h-full w-full bg-[#0A0F18] flex flex-col overflow-x-hidden">' +
-    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="hidden" tabindex="-1">' +
+    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="filepicker-visually-hidden" tabindex="-1">' +
     '<div class="px-4 sm:px-5 pt-[calc(16px+var(--safe-area-inset-top,0px))] lg:pt-14 pb-3 border-b border-white/[0.06] bg-[#0A0F18]/90 backdrop-blur shrink-0">' +
       '<div class="flex items-center justify-between gap-3">' +
         '<div class="flex items-center gap-3 min-w-0">' +

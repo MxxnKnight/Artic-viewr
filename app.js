@@ -996,7 +996,7 @@ function render() {
   document.getElementById('root').innerHTML =
   '<div class="min-h-[100dvh] w-full bg-[#0A0F18] text-white selection:bg-[#66CCFF]/30 overflow-x-hidden antialiased flex flex-col" style="font-family:Geist, system-ui, -apple-system, sans-serif">' +
     // One global hidden picker: the navbar Upload button and every screen share it.
-    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="hidden" tabindex="-1">' +
+    '<input type="file" id="filepicker" accept=".json,.jsonl,.ljson,.ljsone" class="filepicker-visually-hidden" tabindex="-1">' +
 
     (showChrome ? topNavHTML() : '') +
 
