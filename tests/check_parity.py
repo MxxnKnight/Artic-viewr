@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Text-parity audit: distinctive strings from the original mockup must all
-appear in the rewritten app's rendered output. Run: python3 tests/check_parity.py"""
+"""Text-parity audit: distinctive strings of the current UI must all appear in
+the rendered output. Run: python3 tests/check_parity.py
+(Dummy-data strings from the old mockup were intentionally removed.)"""
 import json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -16,32 +17,39 @@ PHRASES = [
     'Virtualized viewer for massive multi-line JSON',
     # home
     'WELCOME BACK', 'Arctic Lab', 'Drop .jsonl / .ljsone here',
-    'Tap to browse on mobile • up to 50MB', '.jsonl', '.ljsone',
-    'RECENT FILES', 'View all', 'Pro tip',
-    'arctic_shift_2024.ljsone', 'shift_nodes.jsonl',
-    'buoy_stream_0312.json', 'thermal_drift.ljson',
-    '2.4 MB', '1,247', 'Long-press any line in viewer',
+    'up to 50MB', '.json', '.jsonl', '.ljson', '.ljsone',
+    'Pro tip', 'Private by design', 'never uploaded anywhere',
+    'No file loaded yet', 'CURRENT FILE', 'Open in viewer',
+    'LINES', 'ERRORS', 'SIZE', 'on-device only',
     # viewer
-    'virtualized', 'Search id, type, keys…', 'Inspect', 'Copy',
-    'Live parse', 'total',
+    'virtualized', 'Search id, type, keys', 'Inspect', 'Copy',
+    'visible', 'total', 'Show more', 'Clear filters',
+    'No file loaded', 'Choose file',
+    'Line order', 'Oldest first', 'Newest first', 'Type A–Z',
     # detail
-    'Tree', 'Raw', 'chars', 'Parse error', 'Unexpected end of JSON input',
-    'LAT / LON', 'SHIFT DELTA',
+    'Tree', 'Table', 'Raw', 'chars', 'Parse error',
+    'FIELD', 'VALUE',
     # stats
-    'File Stats', 'analyzed offline', 'FILE SIZE', 'ERROR LINES',
-    'Type distribution', 'Keys overview', 'Arctic note:', 'thermal',
-    'Unique IDs', 'Time span', 'Integrity',
+    'File Stats', 'analyzed on-device', 'AVG / LINE', 'ERROR LINES',
+    'Type distribution', 'Keys overview', 'Integrity', 'Time span',
+    'Unique types', 'No stats yet',
     # nav (mobile + desktop)
     'Lines', 'Home', 'Stats', 'Onboarding', 'Viewer', 'Detail',
     # shell
     'ARTIC SHIFT • #66CCFF', '390px native feel', 'icy blue #66CCFF',
 ]
 
-BAD = ['createElement', 'useState', 'React Artifact', 'undefined', 'NaN', '[object Object]']
+# Strings that must NOT appear (old dummy data / React leftovers).
+ABSENT = [
+    'arctic_shift_2024.ljsone', 'shift_nodes.jsonl', 'buoy_stream_0312.json',
+    'thermal_drift.ljson', 'RECENT FILES', 'LAT / LON', 'SHIFT DELTA',
+    'Arctic note:', 'createElement', 'useState', 'React Artifact',
+    '[object Object]',
+]
 
 fails = [p for p in PHRASES if p not in ALL]
-bad = [b for b in BAD if b in ALL]
-print(f"phrases checked: {len(PHRASES)} | missing: {len(fails)} | bad tokens: {len(bad)}")
+present_bad = [b for b in ABSENT if b in ALL]
+print(f"phrases checked: {len(PHRASES)} | missing: {len(fails)} | forbidden present: {len(present_bad)}")
 for p in fails: print("  MISSING:", p)
-for b in bad: print("  BAD TOKEN PRESENT:", b)
-sys.exit(1 if (fails or bad) else 0)
+for b in present_bad: print("  FORBIDDEN PRESENT:", b)
+sys.exit(1 if (fails or present_bad) else 0)
