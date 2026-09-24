@@ -6,48 +6,46 @@
 <title>sticky diagnostic</title>
 <style>
   body { margin: 0; background: #0A0F18; color: #fff; font-family: sans-serif; overflow-x: hidden; }
-  .spacer { height: 120vh; display: flex; align-items: center; justify-content: center; color: #5A6B82; }
+  .spacer { height: 130vh; display: flex; align-items: center; justify-content: center; color: #5A6B82; }
   .bar { position: sticky; top: 0; height: 56px; display: flex; align-items: center; justify-content: center;
          font-weight: bold; z-index: 30; font-size: 15px; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .fade { animation: fadeIn .3s ease; }
+  .flexcol { display: flex; flex-direction: column; }
 </style>
 </head>
 <body>
-  <div class="spacer">scroll down &darr;</div>
-
-  <!-- CASE A: bar direct child of body (body has overflow-x:hidden) -->
-  <div class="bar" style="background:#3b82f6">A: direct child of body</div>
-  <div class="spacer">case A spacer</div>
-
-  <!-- CASE B: wrapper with overflow-x:clip -->
-  <div style="overflow-x: clip">
-    <div class="bar" style="background:#22c55e">B: inside overflow-x:clip</div>
-  </div>
-  <div class="spacer">case B spacer</div>
-
-  <!-- CASE C: wrapper with overflow-x:hidden (old app behavior) -->
-  <div style="overflow-x: hidden">
-    <div class="bar" style="background:#ef4444">C: inside overflow-x:hidden</div>
-  </div>
-  <div class="spacer">case C spacer</div>
-
-  <!-- CASE D: plain wrapper, no overflow -->
-  <div>
-    <div class="bar" style="background:#a855f7">D: inside plain wrapper</div>
-  </div>
-  <div class="spacer">case D spacer</div>
-
-  <!-- CASE E: inside completed fadeIn animation wrapper -->
-  <div class="fade">
-    <div class="bar" style="background:#f59e0b">E: inside fadeIn wrapper</div>
-  </div>
-  <div class="spacer">case E spacer</div>
-
-  <!-- CASE F: flex column wrapper like app main -->
-  <div style="display:flex;flex-direction:column">
-    <div class="bar" style="background:#06b6d4">F: inside flex column</div>
-  </div>
-  <div class="spacer">end &darr;</div>
+<div id="root"></div>
+<script>
+  var CASE = new URLSearchParams(location.search).get('case') || 'ALL';
+  var cases = {
+    A: { label: 'A: direct child of body', color: '#3b82f6',
+         html: '<div class="bar" style="background:#3b82f6">A: direct child of body</div><div class="spacer">A spacer</div>' },
+    B: { label: 'B: inside overflow-x:clip', color: '#22c55e',
+         html: '<div style="overflow-x:clip"><div class="bar" style="background:#22c55e">B: inside overflow-x:clip</div><div class="spacer">B spacer</div></div>' },
+    C: { label: 'C: inside overflow-x:hidden', color: '#ef4444',
+         html: '<div style="overflow-x:hidden"><div class="bar" style="background:#ef4444">C: inside overflow-x:hidden</div><div class="spacer">C spacer</div></div>' },
+    D: { label: 'D: inside plain wrapper', color: '#a855f7',
+         html: '<div><div class="bar" style="background:#a855f7">D: inside plain wrapper</div><div class="spacer">D spacer</div></div>' },
+    E: { label: 'E: inside fadeIn wrapper', color: '#f59e0b',
+         html: '<div class="fade"><div class="bar" style="background:#f59e0b">E: inside fadeIn wrapper</div><div class="spacer">E spacer</div></div>' },
+    F: { label: 'F: inside flex column', color: '#06b6d4',
+         html: '<div class="flexcol"><div class="bar" style="background:#06b6d4">F: inside flex column</div><div class="spacer">F spacer</div></div>' },
+    G: { label: 'G: toolbar chain (clip>flexcol>fade)', color: '#ec4899',
+         html: '<div class="flexcol" style="overflow-x:clip"><div class="flexcol"><div class="fade"><div class="bar" style="background:#ec4899">G: toolbar chain</div><div class="spacer">G spacer</div></div></div></div>' },
+    H: { label: 'H: flex column, NO overflow-x (proposed fix)', color: '#84cc16',
+         html: '<div class="flexcol"><div class="bar" style="background:#84cc16">H: flexcol no overflow-x</div><div class="spacer">H spacer</div></div>' }
+  };
+  var root = document.getElementById('root');
+  if (CASE === 'ALL') {
+    root.innerHTML = '<div class="spacer">scroll &darr;</div>' +
+      Object.keys(cases).map(function (k) { return cases[k].html; }).join('');
+  } else if (cases[CASE]) {
+    document.title = 'sticky diagnostic ' + CASE;
+    root.innerHTML = cases[CASE].html;
+  } else {
+    root.innerHTML = '<div class="spacer">unknown case</div>';
+  }
+</script>
 </body>
 </html>
